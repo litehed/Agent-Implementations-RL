@@ -61,8 +61,8 @@ def compare_rewards(rewards_sarsa, rewards_q):
 def compare_rewards_all(rewards_sarsa, rewards_q, rewards_lambda):
     plt.figure(figsize=(10, 5))
     plt.plot(rewards_sarsa, label="SARSA(0)")
-    plt.plot(rewards_q, label="Q-Learning")
-    plt.plot(rewards_lambda, label="SARSA(lambda)")
+    plt.plot(rewards_q, label="SARSA Expected")
+    plt.plot(rewards_lambda, label="Q-Learning")
     plt.title("Rewards Over Episodes")
     plt.xlabel("Episode")
     plt.ylabel("Total Reward")

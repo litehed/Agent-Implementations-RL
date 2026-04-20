@@ -105,6 +105,20 @@ class SARSA(TDLBase):
         return reward_history
 
 
+class ExpectedSARSA(SARSA):
+    def update(self, state, action, reward, next_state, next_action=None):
+        cur_q = self.get_q(state)[action]
+        next_qs = self.get_q(next_state)
+        expected_next_q = 0
+        for a in range(self.actions):
+            action_prob = self.epsilon / self.actions
+            if a == np.argmax(next_qs):
+                action_prob += 1 - self.epsilon
+            expected_next_q += action_prob * next_qs[a]
+        cur_q += self.alpha * (reward + self.gamma * expected_next_q - cur_q)
+        self.Q[state][action] = cur_q
+
+
 class N_Step_SARSA(SARSA):
     def __init__(
         self,

@@ -5,6 +5,7 @@ Here I am implementing the agents as I read through them in the Sutton and Barto
 #### Chapter 6 - Temporal-Difference Learning: 
 - SARSA(0)
 - Q-Learning
+- Expected SARSA
 - Double Q-Learning
 
 #### Chapter 7 - n-step Bootstrapping

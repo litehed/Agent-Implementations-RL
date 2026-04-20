@@ -1,4 +1,11 @@
-from td_learning import SARSA, SARSA_Lambda, N_Step_SARSA, QLearning, DoubleQLearning
+from td_learning import (
+    SARSA,
+    SARSA_Lambda,
+    ExpectedSARSA,
+    N_Step_SARSA,
+    QLearning,
+    DoubleQLearning,
+)
 
 
 EPISODES = 1000
@@ -26,15 +33,15 @@ def train_sarsa_zero(
         alpha=alpha,
         gamma=gamma,
         epsilon=epsilon,
+        epsilon_min=min_epsilon,
         epsilon_decay=epsilon_decay,
-        min_epsilon=min_epsilon,
     )
     reward_history_s = sarsa_agent.train(train_env, episodes=episodes)
     path, total_reward = sarsa_agent.best_path(eval_env)
     return reward_history_s, path, total_reward
 
 
-def train_sarsa_lambda(
+def train_sarsa_expected(
     train_env,
     eval_env,
     episodes=EPISODES,
@@ -43,20 +50,20 @@ def train_sarsa_lambda(
     epsilon=EPSILON,
     epsilon_decay=EPSILON_DECAY,
     min_epsilon=MIN_EPSILON,
-    trace_decay=TRACE_DECAY,
 ):
-    sarsa_lambda_agent = SARSA_Lambda(
+    expected_sarsa_agent = ExpectedSARSA(
         actions=train_env.action_space.n,
         alpha=alpha,
         gamma=gamma,
         epsilon=epsilon,
+        epsilon_min=min_epsilon,
         epsilon_decay=epsilon_decay,
-        min_epsilon=min_epsilon,
-        trace_decay=trace_decay,
     )
-    reward_history_lambda = sarsa_lambda_agent.train(train_env, episodes=episodes)
-    path, total_reward = sarsa_lambda_agent.best_path(eval_env)
-    return reward_history_lambda, path, total_reward
+    reward_history_expected_sarsa = expected_sarsa_agent.train(
+        train_env, episodes=episodes
+    )
+    path, total_reward = expected_sarsa_agent.best_path(eval_env)
+    return reward_history_expected_sarsa, path, total_reward
 
 
 def train_sarsa_n_step(
@@ -76,12 +83,37 @@ def train_sarsa_n_step(
         gamma=gamma,
         epsilon=epsilon,
         epsilon_decay=epsilon_decay,
-        min_epsilon=min_epsilon,
+        epsilon_min=min_epsilon,
         n_step_size=n_step_size,
     )
     reward_history_n_step = sarsa_n_step_agent.train(train_env, episodes=episodes)
     path, total_reward = sarsa_n_step_agent.best_path(eval_env)
     return reward_history_n_step, path, total_reward
+
+
+def train_sarsa_lambda(
+    train_env,
+    eval_env,
+    episodes=EPISODES,
+    alpha=ALPHA,
+    gamma=GAMMA,
+    epsilon=EPSILON,
+    epsilon_decay=EPSILON_DECAY,
+    min_epsilon=MIN_EPSILON,
+    trace_decay=TRACE_DECAY,
+):
+    sarsa_lambda_agent = SARSA_Lambda(
+        actions=train_env.action_space.n,
+        alpha=alpha,
+        gamma=gamma,
+        epsilon=epsilon,
+        epsilon_decay=epsilon_decay,
+        epsilon_min=min_epsilon,
+        trace_decay=trace_decay,
+    )
+    reward_history_lambda = sarsa_lambda_agent.train(train_env, episodes=episodes)
+    path, total_reward = sarsa_lambda_agent.best_path(eval_env)
+    return reward_history_lambda, path, total_reward
 
 
 def train_q_learning(
@@ -99,8 +131,8 @@ def train_q_learning(
         alpha=alpha,
         gamma=gamma,
         epsilon=epsilon,
+        epsilon_min=min_epsilon,
         epsilon_decay=epsilon_decay,
-        min_epsilon=min_epsilon,
     )
     reward_history_q = q_learning_agent.train(train_env, episodes=episodes)
     path, total_reward = q_learning_agent.best_path(eval_env)
@@ -122,8 +154,8 @@ def train_double_q(
         alpha=alpha,
         gamma=gamma,
         epsilon=epsilon,
+        epsilon_min=min_epsilon,
         epsilon_decay=epsilon_decay,
-        min_epsilon=min_epsilon,
     )
     reward_history_double_q = double_q_agent.train(train_env, episodes=episodes)
     path, total_reward = double_q_agent.best_path(eval_env)
