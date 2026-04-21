@@ -69,3 +69,14 @@ def compare_rewards_all(rewards_sarsa, rewards_q, rewards_lambda):
     plt.grid()
     plt.legend()
     plt.show()
+    
+def compare_all_agents(reward_histories, labels):
+    plt.figure(figsize=(10, 5))
+    for rewards, label in zip(reward_histories, labels):
+        plt.plot(rewards, label=label)
+    plt.title("Rewards Over Episodes")
+    plt.xlabel("Episode")
+    plt.ylabel("Total Reward")
+    plt.grid()
+    plt.legend()
+    plt.show()
