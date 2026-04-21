@@ -10,6 +10,7 @@ Here I am implementing the agents as I read through them in the Sutton and Barto
 
 #### Chapter 7 - n-step Bootstrapping
 - n-step SARSA
+- Off-Policy n-step SARSA
 
 #### Chapter 12 - Eligibility Traces
 - SARSA(&lambda;)

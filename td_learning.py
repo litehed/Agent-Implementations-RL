@@ -191,6 +191,77 @@ class N_Step_SARSA(SARSA):
         return reward_history
 
 
+class OffPolicy_N_Step_SARSA(N_Step_SARSA):
+    def update_n_step(self, state, action, G, rho):
+        cur_q = self.get_q(state)[action]
+        self.Q[state][action] = cur_q + self.alpha * rho * (G - cur_q)
+
+    def train(self, env, episodes=1000):
+        reward_history = np.zeros(episodes)
+        for episode in range(episodes):
+            S = []
+            A = []
+            R = []
+
+            state, _ = env.reset()
+            S.append(self.convert_state(state))
+            A.append(self.choose_action(state))
+            R.append(0)
+
+            T = float("inf")
+            t = 0
+            done = False
+
+            while True:
+                if t < T:
+                    next_state, reward, terminated, truncated, _ = env.step(A[t])
+                    next_state = self.convert_state(next_state)
+                    done = terminated or truncated
+                    R.append(reward)
+                    S.append(next_state)
+
+                    if done:
+                        T = t + 1
+                    else:
+                        next_action = self.choose_action(next_state)
+                        A.append(next_action)
+
+                tau = t - self.n + 1
+                if tau >= 0:
+                    rho = 1
+                    for i in range(tau + 1, min(tau + self.n - 1, T - 1)):
+                        behavior = A[i]
+                        optimal = np.argmax(self.get_q(S[i]))
+                        if behavior != optimal:
+                            rho = 0
+                            break
+                        greedy_prob = (1 - self.epsilon) + self.epsilon * (
+                            1 / self.actions
+                        )
+                        rho *= 1 / greedy_prob
+                        # Deterministic so target policy has 100% prob of taking the optimal action
+
+                    G = 0
+                    for i in range(tau, min(tau + self.n + 1, T)):
+                        G += (self.gamma ** (i - tau - 1)) * R[i]
+                    if tau + self.n < T:
+                        G += (
+                            self.gamma**self.n
+                            * self.get_q(S[tau + self.n])[A[tau + self.n]]
+                        )
+
+                    self.update_n_step(S[tau], A[tau], G, rho)
+
+                if tau == T - 1:
+                    break
+
+                t += 1
+
+            reward_history[episode] = sum(R)
+            self.decay_epsilon()
+        return reward_history
+
+
 # TD(lambda) SARSA, mixes monte carlo and TD(0) by using eligibility traces to update
 class SARSA_Lambda(SARSA):
     def __init__(self, actions, alpha=0.1, gamma=0.95, epsilon=0.1, trace_decay=0.9):

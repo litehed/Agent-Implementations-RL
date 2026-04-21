@@ -3,6 +3,7 @@ from td_learning import (
     SARSA_Lambda,
     ExpectedSARSA,
     N_Step_SARSA,
+    OffPolicy_N_Step_SARSA,
     QLearning,
     DoubleQLearning,
 )
@@ -84,11 +85,38 @@ def train_sarsa_n_step(
         epsilon=epsilon,
         epsilon_decay=epsilon_decay,
         epsilon_min=min_epsilon,
-        n_step_size=n_step_size,
+        n=n_step_size,
     )
     reward_history_n_step = sarsa_n_step_agent.train(train_env, episodes=episodes)
     path, total_reward = sarsa_n_step_agent.best_path(eval_env)
     return reward_history_n_step, path, total_reward
+
+
+def train_off_policy_n_step_sarsa(
+    train_env,
+    eval_env,
+    episodes=EPISODES,
+    alpha=ALPHA,
+    gamma=GAMMA,
+    epsilon=EPSILON,
+    epsilon_decay=EPSILON_DECAY,
+    min_epsilon=MIN_EPSILON,
+    n_step_size=N_STEP_SIZE,
+):
+    off_policy_n_step_sarsa_agent = OffPolicy_N_Step_SARSA(
+        actions=train_env.action_space.n,
+        alpha=alpha,
+        gamma=gamma,
+        epsilon=epsilon,
+        epsilon_decay=epsilon_decay,
+        epsilon_min=min_epsilon,
+        n=n_step_size,
+    )
+    reward_history_off_policy_n_step_sarsa = off_policy_n_step_sarsa_agent.train(
+        train_env, episodes=episodes
+    )
+    path, total_reward = off_policy_n_step_sarsa_agent.best_path(eval_env)
+    return reward_history_off_policy_n_step_sarsa, path, total_reward
 
 
 def train_sarsa_lambda(
