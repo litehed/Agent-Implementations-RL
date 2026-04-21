@@ -11,7 +11,7 @@ if __name__ == "__main__":
     reward_history_n, path_n, total_reward_n = train_off_policy_n_step_sarsa(env, eval_env)
     reward_history_lambda, path_lambda, total_reward_lambda = train_q_learning(env, eval_env)
     
-    print(f"SARSA(0) Total Reward: {total_reward_s}, Path Length: {len(path_s) - 1}")
+    print(f"SARSA(0) Total Reward: {total_reward_s}")
     print(f"Off-Policy N-Step SARSA Total Reward: {total_reward_n}")
     print(f"Q-Learning Total Reward: {total_reward_lambda}")
     

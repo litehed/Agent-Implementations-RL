@@ -64,6 +64,7 @@ class TDLBase:
         while not done:
             action = self.choose_action(state, epsilon=0)
             next_state, reward, terminated, truncated, _ = env.step(action)
+            next_state = self.convert_state(next_state)
             done = terminated or truncated
             state = next_state
             best_reward += reward
@@ -147,7 +148,7 @@ class N_Step_SARSA(SARSA):
             state, _ = env.reset()
             S.append(self.convert_state(state))
             A.append(self.choose_action(state))
-            R.append(0)
+            R.append(0)  # So we can start at t+1
 
             T = float("inf")
             t = 0
@@ -170,7 +171,7 @@ class N_Step_SARSA(SARSA):
                 tau = t - self.n + 1
                 if tau >= 0:
                     G = 0
-                    for i in range(tau, min(tau + self.n + 1, T)):
+                    for i in range(tau + 1, min(tau + self.n, T) + 1):
                         G += (self.gamma ** (i - tau - 1)) * R[i]
 
                     if tau + self.n < T:
@@ -206,7 +207,7 @@ class OffPolicy_N_Step_SARSA(N_Step_SARSA):
             state, _ = env.reset()
             S.append(self.convert_state(state))
             A.append(self.choose_action(state))
-            R.append(0)
+            R.append(0)  # So we can start at t+1
 
             T = float("inf")
             t = 0
@@ -229,7 +230,7 @@ class OffPolicy_N_Step_SARSA(N_Step_SARSA):
                 tau = t - self.n + 1
                 if tau >= 0:
                     rho = 1
-                    for i in range(tau + 1, min(tau + self.n - 1, T - 1)):
+                    for i in range(tau + 1, min(tau + self.n - 1, T - 1) + 1):
                         behavior = A[i]
                         optimal = np.argmax(self.get_q(S[i]))
                         if behavior != optimal:
@@ -242,7 +243,7 @@ class OffPolicy_N_Step_SARSA(N_Step_SARSA):
                         # Deterministic so target policy has 100% prob of taking the optimal action
 
                     G = 0
-                    for i in range(tau, min(tau + self.n + 1, T)):
+                    for i in range(tau + 1, min(tau + self.n, T) + 1):
                         G += (self.gamma ** (i - tau - 1)) * R[i]
                     if tau + self.n < T:
                         G += (
@@ -264,8 +265,17 @@ class OffPolicy_N_Step_SARSA(N_Step_SARSA):
 
 # TD(lambda) SARSA, mixes monte carlo and TD(0) by using eligibility traces to update
 class SARSA_Lambda(SARSA):
-    def __init__(self, actions, alpha=0.1, gamma=0.95, epsilon=0.1, trace_decay=0.9):
-        super().__init__(actions, alpha, gamma, epsilon)
+    def __init__(
+        self,
+        actions,
+        alpha=0.1,
+        gamma=0.95,
+        epsilon=0.1,
+        epsilon_min=0.01,
+        epsilon_decay=0.995,
+        trace_decay=0.9,
+    ):
+        super().__init__(actions, alpha, gamma, epsilon, epsilon_min, epsilon_decay)
         self.trace_decay = trace_decay  # lambda
         self.e = {}  # eligibility traces
 
