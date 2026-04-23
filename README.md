@@ -2,7 +2,11 @@
 Here I am implementing the agents as I read through them in the Sutton and Bartow book: Reinforcement Learning An Introduction 2nd edition.
 
 ## Agents Implemented:
-#### Chapter 6 - Temporal-Difference Learning: 
+
+#### Chapter 5 - Monte Carlo Methods
+- On-policy first-visit Monte Carlo
+
+#### Chapter 6 - Temporal-Difference Learning
 - SARSA(0)
 - Q-Learning
 - Expected SARSA
