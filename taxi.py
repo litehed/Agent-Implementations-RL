@@ -1,5 +1,5 @@
 import gymnasium as gym
-from td_learning import SARSA, N_Step_SARSA, OnPolicyMC
+from monte_carlo import OnPolicyMC, OffPolicyMC
 from visualizer import visualize_rewards
 
 env = gym.make("Taxi-v3")
@@ -11,8 +11,11 @@ if __name__ == "__main__":
     wait = input("Training Finished. Press Enter")
     path, bestreward = onpolicyMC.best_path(eval_env)
     
+    offpolicyMC = OffPolicyMC(actions=env.action_space.n)
+    reward_history_offpolicyMC = offpolicyMC.train(env, episodes=30000)
+    wait = input("Training Finished. Press Enter")
+    path, bestreward = offpolicyMC.best_path(eval_env)
+    
     visualize_rewards(reward_history_onpolicyMC)
-    
-    
-    
+    visualize_rewards(reward_history_offpolicyMC)
 

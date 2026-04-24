@@ -1,6 +1,6 @@
 import numpy as np
 import random
-    
+
 
 class TDLBase:
     # Takes number of actions, alpha - learning rate, gamma - discount factor,
@@ -73,71 +73,6 @@ class TDLBase:
                 break
         return path, best_reward
 
-
-
-class OnPolicyMC(TDLBase):
-    # Ill reformat this at some other point to remove alpha for now Im too lazy
-    #TODO: PLEASE COME BACK TO THIS ME
-    def __init__(self, actions, alpha=0.1, gamma=0.99, epsilon=0.5):
-        super().__init__(actions, alpha, gamma, epsilon)
-        self.policy = {}
-        
-    def get_policy(self, state):
-        state = self.convert_state(state)
-        if state not in self.policy:
-            self.policy[state] = np.ones(self.actions) / self.actions
-        return self.policy[state]
-
-    def choose_action(self, state, epsilon=None):
-        state = self.convert_state(state)
-        if epsilon == 0:
-            return int(np.argmax(self.get_q(state)))
-        return np.random.choice(self.actions, p=self.get_policy(state))
-
-    def train(self, env, episodes=1000):
-        reward_history = np.zeros(episodes)
-        Returns = {}
-        for episode in range(episodes):
-            state, _ = env.reset()
-            state = self.convert_state(state)
-            done = False
-            episode_data = []
-            while not done:
-                action = self.choose_action(state)
-                next_state, reward, terminated, truncated, _ = env.step(action)
-                next_state = self.convert_state(next_state)
-                done = terminated or truncated
-                episode_data.append((state, action, reward))
-                reward_history[episode] += reward
-                state = next_state
-                
-            G = 0
-            T = len(episode_data)
-            for t in range(T - 1, -1, -1): # I keep forgetting its [start, end) not [start, end]
-                state_t, action_t, reward_t = episode_data[t]
-                G = self.gamma * G + reward_t ## reward t rather than t+1 because append
-                
-                first_visit = True
-                for i in range(t):
-                    if episode_data[i][0] == state_t and episode_data[i][1] == action_t:
-                        first_visit = False
-                        break
-                if first_visit:
-                    if (state_t, action_t) not in Returns:
-                        Returns[(state_t, action_t)] = []
-                    Returns[(state_t, action_t)].append(G)
-                    self.get_q(state_t)
-                    self.Q[state_t][action_t] = np.mean(Returns[(state_t, action_t)])
-                    q_vals = self.get_q(state_t)
-                    A_optimal = np.argmax(q_vals)
-                    for action_choice in range(self.actions):
-                        if action_choice == A_optimal:
-                            self.policy[state_t][action_choice] = 1 - self.epsilon + (self.epsilon / self.actions)
-                        else:
-                            self.policy[state_t][action_choice] = self.epsilon / self.actions
-                    
-
-        return reward_history
 
 # On-Policy
 class SARSA(TDLBase):
