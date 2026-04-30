@@ -4,8 +4,8 @@ Here I am implementing the agents as I read through them in the Sutton and Barto
 ## Agents Implemented:
 
 #### Chapter 5 - Monte Carlo Methods
-- On-policy first-visit Monte Carlo Control
-- Off-policy Monte Carlo Control
+- On-policy first-visit Monte Carlo
+- Off-policy Monte Carlo
 
 #### Chapter 6 - Temporal-Difference Learning
 - SARSA(0)
@@ -16,6 +16,7 @@ Here I am implementing the agents as I read through them in the Sutton and Barto
 #### Chapter 7 - n-step Bootstrapping
 - n-step SARSA
 - Off-Policy n-step SARSA
+- n-step Tree Backup
 
 #### Chapter 12 - Eligibility Traces
 - SARSA(&lambda;)

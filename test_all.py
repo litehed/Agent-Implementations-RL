@@ -2,7 +2,7 @@ import gymnasium as gym
 from agent_helpers import *
 from visualizer import compare_all_agents
 
-EPISODES = 10000
+EPISODES = 1000
 
 taxi_env = gym.make("Taxi-v3")
 taxi_eval_env = gym.make("Taxi-v3", render_mode="human")
@@ -13,8 +13,8 @@ cliff_eval_env = gym.make("CliffWalking-v1", render_mode="human")
 frozen_lake_env = gym.make("FrozenLake-v1", is_slippery=True)
 frozen_lake_eval_env = gym.make("FrozenLake-v1", is_slippery=True, render_mode="human")
 
-env = taxi_env
-eval_env = taxi_eval_env
+env = cliff_env
+eval_env = cliff_eval_env
 
 if __name__ == "__main__":
     print("SARSA(0)")
@@ -31,6 +31,8 @@ if __name__ == "__main__":
     reward_history_q, path_q, total_reward_q = train_q_learning(env, eval_env, episodes=EPISODES)
     print("Double Q-Learning")
     reward_history_dq, path_dq, total_reward_dq = train_double_q(env, eval_env, episodes=EPISODES)
+    print("N-Step Tree Backup")
+    reward_history_n_step_tree_backup, path_n_step_tree_backup, total_reward_n_step_tree_backup = train_n_step_tree_backup(env, eval_env, episodes=EPISODES)
 
     compare_all_agents(
         [
@@ -41,6 +43,7 @@ if __name__ == "__main__":
             reward_history_lambda,
             reward_history_q,
             reward_history_dq,
+            reward_history_n_step_tree_backup,
         ],
         [
             "SARSA(0)",
@@ -50,5 +53,6 @@ if __name__ == "__main__":
             "SARSA(lambda)",
             "Q-Learning",
             "Double Q-Learning",
+            "N-Step Tree Backup",
         ],
     )

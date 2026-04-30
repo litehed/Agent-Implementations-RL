@@ -263,6 +263,80 @@ class OffPolicy_N_Step_SARSA(N_Step_SARSA):
         return reward_history
 
 
+class N_Step_Tree_Backup(N_Step_SARSA):
+    
+    def get_policy_probs(self, state):
+        q_vals = self.get_q(state)
+        probs = np.ones(self.actions) * (self.epsilon / self.actions)
+        greedy = np.argmax(q_vals)
+        probs[greedy] += 1 - self.epsilon
+        return probs
+    
+    def train(self, env, episodes=1000):
+        reward_history = np.zeros(episodes)
+        for episode in range(episodes):
+            S = []
+            A = []
+            R = []
+
+            state, _ = env.reset()
+            S.append(self.convert_state(state))
+            A.append(self.choose_action(state))
+            R.append(0)
+
+            T = float("inf")
+            t = 0
+            done = False
+
+            while True:
+                if t < T:
+                    next_state, reward, terminated, truncated, _ = env.step(A[t])
+                    next_state = self.convert_state(next_state)
+                    done = terminated or truncated
+                    R.append(reward)
+                    S.append(next_state)
+
+                    if done:
+                        T = t + 1
+                    else:
+                        next_action = self.choose_action(next_state)
+                        A.append(next_action)
+
+                tau = t + 1 - self.n
+                if tau >= 0:
+                    G = 0
+                    if t + 1 >= T:
+                        G = R[T]
+                    else:
+                        G = R[t + 1] + self.gamma * np.dot(
+                            self.get_policy_probs(S[t + 1]), self.get_q(S[t + 1])
+                        )
+
+                    for k in range(min(t, T - 1), tau, -1):
+                        probs = self.get_policy_probs(S[k])
+                        q_vals = self.get_q(S[k])
+                        expected_others = (
+                            np.dot(probs, q_vals) - probs[A[k]] * q_vals[A[k]]
+                        )
+
+                        G = (
+                            R[k]
+                            + self.gamma * expected_others
+                            + self.gamma * probs[A[k]] * G
+                        )
+
+                    self.update_n_step(S[tau], A[tau], G)
+
+                if tau == T - 1:
+                    break
+
+                t += 1
+
+            reward_history[episode] = sum(R)
+            self.decay_epsilon()
+        return reward_history
+
+
 # TD(lambda) SARSA, mixes monte carlo and TD(0) by using eligibility traces to update
 class SARSA_Lambda(SARSA):
     def __init__(

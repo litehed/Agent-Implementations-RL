@@ -6,6 +6,7 @@ from td_learning import (
     OffPolicy_N_Step_SARSA,
     QLearning,
     DoubleQLearning,
+    N_Step_Tree_Backup,
 )
 
 
@@ -117,6 +118,33 @@ def train_off_policy_n_step_sarsa(
     )
     path, total_reward = off_policy_n_step_sarsa_agent.best_path(eval_env)
     return reward_history_off_policy_n_step_sarsa, path, total_reward
+
+
+def train_n_step_tree_backup(
+    train_env,
+    eval_env,
+    episodes=EPISODES,
+    alpha=ALPHA,
+    gamma=GAMMA,
+    epsilon=EPSILON,
+    epsilon_decay=EPSILON_DECAY,
+    min_epsilon=MIN_EPSILON,
+    n_step_size=N_STEP_SIZE,
+):
+    n_step_tree_backup_agent = N_Step_Tree_Backup(
+        actions=train_env.action_space.n,
+        alpha=alpha,
+        gamma=gamma,
+        epsilon=epsilon,
+        epsilon_decay=epsilon_decay,
+        epsilon_min=min_epsilon,
+        n=n_step_size,
+    )
+    reward_history_n_step_tree_backup = n_step_tree_backup_agent.train(
+        train_env, episodes=episodes
+    )
+    path, total_reward = n_step_tree_backup_agent.best_path(eval_env)
+    return reward_history_n_step_tree_backup, path, total_reward
 
 
 def train_sarsa_lambda(
