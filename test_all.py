@@ -4,8 +4,8 @@ from visualizer import compare_all_agents
 
 EPISODES = 1000
 
-taxi_env = gym.make("Taxi-v3")
-taxi_eval_env = gym.make("Taxi-v3", render_mode="human")
+taxi_env = gym.make("Taxi-v4")
+taxi_eval_env = gym.make("Taxi-v4", render_mode="human")
 
 cliff_env = gym.make("CliffWalking-v1")
 cliff_eval_env = gym.make("CliffWalking-v1", render_mode="human")

@@ -18,6 +18,9 @@ Here I am implementing the agents as I read through them in the Sutton and Barto
 - Off-Policy n-step SARSA
 - n-step Tree Backup
 
+#### Chapter 8 - Planning and Learning with Tabular Methods
+- Tabular Dyna-Q
+
 #### Chapter 12 - Eligibility Traces
 - SARSA(&lambda;)
 

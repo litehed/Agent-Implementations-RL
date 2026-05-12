@@ -4,26 +4,19 @@ import random
 
 class TDLBase:
     # Takes number of actions, alpha - learning rate, gamma - discount factor,
-    # epsilon - exploration rate, epsilon_min - minimum exploration rate, epsilon_decay - decay rate for exploration
+    # epsilon - exploration rate
     def __init__(
         self,
         actions,
         alpha=0.1,
         gamma=0.95,
         epsilon=0.1,
-        epsilon_min=0.01,
-        epsilon_decay=0.995,
     ):
         self.actions = actions
         self.alpha = alpha
         self.gamma = gamma
         self.epsilon = epsilon
-        self.epsilon_min = epsilon_min
-        self.epsilon_decay = epsilon_decay
         self.Q = {}
-
-    def decay_epsilon(self):
-        self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
     def convert_state(self, state):
         if isinstance(state, np.ndarray):
@@ -101,8 +94,6 @@ class SARSA(TDLBase):
                 action = next_action
                 reward_history[episode] += reward
 
-            self.decay_epsilon()
-
         return reward_history
 
 
@@ -127,11 +118,9 @@ class N_Step_SARSA(SARSA):
         alpha=0.1,
         gamma=0.95,
         epsilon=0.1,
-        epsilon_min=0.01,
-        epsilon_decay=0.995,
         n=3,
     ):
-        super().__init__(actions, alpha, gamma, epsilon, epsilon_min, epsilon_decay)
+        super().__init__(actions, alpha, gamma, epsilon)
         self.n = n
 
     def update_n_step(self, state, action, G):
@@ -156,7 +145,8 @@ class N_Step_SARSA(SARSA):
 
             while True:
                 if t < T:
-                    next_state, reward, terminated, truncated, _ = env.step(A[t])
+                    next_state, reward, terminated, truncated, _ = env.step(
+                        A[t])
                     next_state = self.convert_state(next_state)
                     done = terminated or truncated
                     R.append(reward)
@@ -188,12 +178,11 @@ class N_Step_SARSA(SARSA):
                 t += 1
 
             reward_history[episode] = sum(R)
-            self.decay_epsilon()
         return reward_history
 
 
 class OffPolicy_N_Step_SARSA(N_Step_SARSA):
-    def update_n_step(self, state, action, G, rho):
+    def update_n_step(self, state, action, G, rho=1.0):
         cur_q = self.get_q(state)[action]
         self.Q[state][action] = cur_q + self.alpha * rho * (G - cur_q)
 
@@ -215,7 +204,8 @@ class OffPolicy_N_Step_SARSA(N_Step_SARSA):
 
             while True:
                 if t < T:
-                    next_state, reward, terminated, truncated, _ = env.step(A[t])
+                    next_state, reward, terminated, truncated, _ = env.step(
+                        A[t])
                     next_state = self.convert_state(next_state)
                     done = terminated or truncated
                     R.append(reward)
@@ -259,19 +249,18 @@ class OffPolicy_N_Step_SARSA(N_Step_SARSA):
                 t += 1
 
             reward_history[episode] = sum(R)
-            self.decay_epsilon()
         return reward_history
 
 
 class N_Step_Tree_Backup(N_Step_SARSA):
-    
+
     def get_policy_probs(self, state):
         q_vals = self.get_q(state)
         probs = np.ones(self.actions) * (self.epsilon / self.actions)
         greedy = np.argmax(q_vals)
         probs[greedy] += 1 - self.epsilon
         return probs
-    
+
     def train(self, env, episodes=1000):
         reward_history = np.zeros(episodes)
         for episode in range(episodes):
@@ -290,7 +279,8 @@ class N_Step_Tree_Backup(N_Step_SARSA):
 
             while True:
                 if t < T:
-                    next_state, reward, terminated, truncated, _ = env.step(A[t])
+                    next_state, reward, terminated, truncated, _ = env.step(
+                        A[t])
                     next_state = self.convert_state(next_state)
                     done = terminated or truncated
                     R.append(reward)
@@ -309,7 +299,8 @@ class N_Step_Tree_Backup(N_Step_SARSA):
                         G = R[T]
                     else:
                         G = R[t + 1] + self.gamma * np.dot(
-                            self.get_policy_probs(S[t + 1]), self.get_q(S[t + 1])
+                            self.get_policy_probs(
+                                S[t + 1]), self.get_q(S[t + 1])
                         )
 
                     for k in range(min(t, T - 1), tau, -1):
@@ -333,7 +324,6 @@ class N_Step_Tree_Backup(N_Step_SARSA):
                 t += 1
 
             reward_history[episode] = sum(R)
-            self.decay_epsilon()
         return reward_history
 
 
@@ -345,11 +335,9 @@ class SARSA_Lambda(SARSA):
         alpha=0.1,
         gamma=0.95,
         epsilon=0.1,
-        epsilon_min=0.01,
-        epsilon_decay=0.995,
         trace_decay=0.9,
     ):
-        super().__init__(actions, alpha, gamma, epsilon, epsilon_min, epsilon_decay)
+        super().__init__(actions, alpha, gamma, epsilon)
         self.trace_decay = trace_decay  # lambda
         self.e = {}  # eligibility traces
 
@@ -394,8 +382,6 @@ class SARSA_Lambda(SARSA):
                 action = next_action
                 reward_history[episode] += reward
 
-            self.decay_epsilon()
-
         return reward_history
 
 
@@ -423,8 +409,6 @@ class QLearning(TDLBase):
                 state = next_state
                 reward_history[episode] += reward
 
-            self.decay_epsilon()
-
         return reward_history
 
 
@@ -435,10 +419,8 @@ class DoubleQLearning(QLearning):
         alpha=0.1,
         gamma=0.95,
         epsilon=0.1,
-        epsilon_min=0.01,
-        epsilon_decay=0.995,
     ):
-        super().__init__(actions, alpha, gamma, epsilon, epsilon_min, epsilon_decay)
+        super().__init__(actions, alpha, gamma, epsilon)
         self.Q2 = {}
 
     def get_q2(self, state):
