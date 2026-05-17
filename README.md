@@ -21,8 +21,12 @@ Here I am implementing the agents as I read through them in the Sutton and Barto
 #### Chapter 8 - Planning and Learning with Tabular Methods
 - Tabular Dyna-Q
 
+#### Chapter 10 - On-policy Control with Approximation
+- Episodic Semi-Gradient Sarsa
+
 #### Chapter 12 - Eligibility Traces
 - SARSA(&lambda;)
+
 
 
 
