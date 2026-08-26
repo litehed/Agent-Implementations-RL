@@ -28,7 +28,8 @@ Here I am implementing the agents as I read through them in the Sutton and Barto
 - SARSA(&lambda;)
 
 
-
+#### Extra - Deep Q-Learning with Experience Replay
+- DQN using an MLP
 
 
 ## Testing:
